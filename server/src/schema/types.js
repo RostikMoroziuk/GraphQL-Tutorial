@@ -1,6 +1,6 @@
 const typeDefs = `
   type Query {
-    allLinks: [Link!]!
+    allLinks(filter: LinkFilter, skip: Int, first: Int): [Link!]!
     allUsers: [User!]!
   }
 
@@ -13,6 +13,12 @@ const typeDefs = `
 
   type Subscription {
     Link(filter: LinkSubscriptionFilter): LinkSubscriptionPayload
+  }
+
+  input LinkFilter {
+    OR: [LinkFilter!]
+    description_contains: String
+    url_contains: String
   }
   
   input LinkSubscriptionFilter {
