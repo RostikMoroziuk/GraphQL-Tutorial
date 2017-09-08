@@ -65,7 +65,9 @@ const resolvers = {
       return Object.assign({id: response.insertedIds[0]}, newUser)
     },
     async signinUser(root, data, { mongo: { Users } }) {
+      console.log('signin')
       const user = await Users.findOne({ email: data.email.email })
+      console.log('user')
       if (data.email.password === user.password) {
         return { token: `token-${user.email}`, user}
       }
@@ -93,7 +95,7 @@ const resolvers = {
       return root._id || root.id
     },
     async postedBy({ postedById }, data, { dataloaders: { userLoader } }) {
-      return await userLoader.load(postedById);
+      return postedById ? await userLoader.load(postedById) : null
     },
     async votes({ _id }, data, { mongo: { Votes } }) {
       return await Votes.find({ linkId: _id }).toArray();

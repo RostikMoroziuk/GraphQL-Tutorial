@@ -40,8 +40,8 @@ const typeDefs = `
     id: ID!
     url: String!
     description: String!
-    postedBy: User!
-    votes: [Vote!]!
+    postedBy: User
+    votes: [Vote]
   }
   
   type User {

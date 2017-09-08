@@ -2,10 +2,11 @@ const Koa = require('koa')
 const koaBody = require('koa-body')
 const Router = require('koa-router')
 const { graphqlKoa, graphiqlKoa } = require('apollo-server-koa')
+const cors = require('koa2-cors')
 //---------
-// const {execute, subscribe} = require('graphql');
-// const {createServer} = require('http');
-// const {SubscriptionServer} = require('subscriptions-transport-ws');
+const {execute, subscribe} = require('graphql');
+const {createServer} = require('http');
+const {SubscriptionServer} = require('subscriptions-transport-ws');
 //---------
 // schama graphql
 const schema = require('./src/schema/index')
@@ -26,24 +27,34 @@ const buildOptions = async (req, res) => {
   }
 }
 // routes
-// const PORT = 3000;
+const PORT = 3000;
 router
   .post('/graphql', koaBody(), graphqlKoa(buildOptions))
   .get('/graphiql', graphiqlKoa({
     endpointURL: '/graphql',
     passHeader: `'Authorization': 'bearer token-test@mail.com'`,
-    // subscriptionsEndpoint: `ws://localhost:${PORT}/subscriptions`,
+    subscriptionsEndpoint: `ws://localhost:${PORT}/subscriptions`,
   }))
 
+app.use(cors())
 app.use(router.routes())
 app.use(router.allowedMethods())
-app.listen(3000)
-// const server = createServer(app.callback());
-// server.listen(PORT, () => {
-//   SubscriptionServer.create(
-//     {execute, subscribe, schema},
-//     {server, path: '/subscriptions'},
-//   );
-//   console.log(`Hackernews GraphQL server running on port ${PORT}.`)
-// });
+// app.listen(3000)
+const server = createServer(app.callback(), (request, response) => {
+  response.writeHead(404);
+  response.end();
+});
+server.listen(PORT);
+
+const subscriptionServer = SubscriptionServer.create(
+  {
+    schema,
+    execute,
+    subscribe,
+  },
+  {
+    server,
+    path: '/subscriptions',
+  },
+);
 
